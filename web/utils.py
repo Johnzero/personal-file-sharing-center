@@ -90,6 +90,7 @@ class Storage(dict):
 storage = Storage
 
 def storify(mapping, *requireds, **defaults):
+
     """
     Creates a `storage` object from dictionary `mapping`, raising `KeyError` if
     d doesn't have all of the keys in `requireds` and using the default 
@@ -170,7 +171,7 @@ def storify(mapping, *requireds, **defaults):
         if value == () and not isinstance(result, tuple): 
             result = (result,)
         setattr(stor, key, result)
-    
+
     return stor
 
 class Counter(storage):
@@ -345,7 +346,11 @@ def safeunicode(obj, encoding='utf-8'):
     if t is unicode:
         return obj
     elif t is str:
-        return obj.decode(encoding)
+        try:
+            encod = obj.decode(encoding)
+        except Exception, e:
+            encod = obj.decode('gbk')
+        return encod
     elif t in [int, float, bool]:
         return unicode(obj)
     elif hasattr(obj, '__unicode__') or isinstance(obj, unicode):

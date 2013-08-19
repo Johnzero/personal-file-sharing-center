@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 simple, elegant templating
 (part of web.py)

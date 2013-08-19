@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Web API (wrapper around WSGI)
 (from web.py)
@@ -6,7 +7,7 @@ Web API (wrapper around WSGI)
 __all__ = [
     "config",
     "header", "debug",
-    "input", "data",
+    "input", "data","rawinput",
     "setcookie", "cookies",
     "ctx", 
     "HTTPError", 
@@ -300,8 +301,33 @@ def rawinput(method=None):
                 a = ctx.get('_fieldstorage')
                 if not a:
                     fp = e['wsgi.input']
+
+                    # length= int(e.get('CONTENT_LENGTH', '0'))
+                    
+                    # body= StringIO(e['wsgi.input'].read(length))
+
+                    # post_env['QUERY_STRING'] = ''
+                    
+                    # post = cgi.FieldStorage(
+                    #     fp=e['wsgi.input'],
+                    #     environ=post_env,
+                    #     keep_blank_values=True
+                    # )
+                    # print post
+                    # print type(fp.read()),'----------------------------'
+                    # fil  = "C:\\Users\\Administrator\\Desktop\\2.doc"
+                    # f = open(fil , "w")
+                    # # f.write(d.read())
+                    # f.close();
                     a = cgi.FieldStorage(fp=fp, environ=e, keep_blank_values=1)
                     ctx._fieldstorage = a
+                    # print a,'----------------------'
+                    # # print a.getfirst('file')
+                    # fil  = "C:\\Users\\Administrator\\Desktop\\2.doc"
+                    # f = open(fil , "w")
+                    # f.write(a.getfirst('file'))
+                    # f.close();
+
             else:
                 fp = StringIO(data())
                 a = cgi.FieldStorage(fp=fp, environ=e, keep_blank_values=1)
@@ -328,6 +354,7 @@ def input(*requireds, **defaults):
     """
     _method = defaults.pop('_method', 'both')
     out = rawinput(_method)
+
     try:
         defaults.setdefault('_unicode', True) # force unicode conversion by default.
         return storify(out, *requireds, **defaults)
@@ -339,6 +366,7 @@ def data():
     if 'data' not in ctx:
         cl = intget(ctx.env.get('CONTENT_LENGTH'), 0)
         ctx.data = ctx.env['wsgi.input'].read(cl)
+    
     return ctx.data
 
 def setcookie(name, value, expires='', domain=None,

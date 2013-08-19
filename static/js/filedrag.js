@@ -108,6 +108,7 @@ and Modified by Ace(i.orzace.com)
 function delete_file(obj)
 {
     var name = obj.name;
+    console.log(name);
     if(confirm("Delete " + name + ", are you sure?"))
     {
         $.ajax({

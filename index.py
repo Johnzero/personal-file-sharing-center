@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import web
 import os
 import time
 import config
 from urllib import quote
+import autoreload
 
 # load config file
 root = config.root
@@ -14,7 +16,7 @@ types = [
     ".gif",".ai",".psd",".mp3",".avi",".rmvb",".mp4",".wmv",
     ".mkv",".doc",".docx",".ppt",".pptx",".xls",".xlsx",
     ".zip",".tar",".gz",".7z",".rar",".pdf",".txt",".exe",
-    ".apk"
+    ".apk","wps"
 ]
 
 render = web.template.render('template')
@@ -48,9 +50,7 @@ class Index:
                 except:
                     temp['type'] = "general"
 
-
-                temp["time"] = time.strftime("%H:%M:%S %Y-%m-%d",
-                        time.localtime(os.path.getmtime(root + i))) 
+                temp["time"] = time.strftime("%H:%M:%S %Y-%m-%d",time.localtime(os.path.getmtime(root +'\\'+ i))) 
                 
                 size = os.path.getsize(os.path.join(root,i))
                 if size < 1024:
@@ -63,7 +63,8 @@ class Index:
                     size = "%0.1f GB" % (size/1024.0/1024.0/1024.0)
                 
                 temp["size"] = size
-                temp["encode"] = quote(i)
+                # temp["encode"] = quote(i)
+                temp["encode"] = i;
 
                 list.append(temp)
             
@@ -72,6 +73,7 @@ class Index:
         # return a file
         else:
             web.header('Content-Type','application/octet-stream')
+            
             web.header('Content-disposition', 'attachment; filename=%s' % path)
             file = open(os.path.join(root,path))
             size = os.path.getsize(os.path.join(root,path))
@@ -80,7 +82,6 @@ class Index:
             
     def DELETE(self,filename):
         try:
-            filename = filename.encode('utf-8') 
             os.remove(os.path.join(root,filename))
         except:
             return "success" 
@@ -90,12 +91,12 @@ class Index:
 
         # save a file to disk
         x = web.input(file={})
-        
+        y = web.rawinput('both')
         if 'file' in x:
             filepath= x.file.filename.replace('\\','/')     # replaces the windows-style slashes with linux ones.
             filename = filepath.split('/')[-1]              # splits the and chooses the last part (the filename with extension)
             filename = unicode(filename, "utf8")
-            fout = open(os.path.join(root,filename),'w')    # creates the file where the uploaded file should be stored
+            fout = open(os.path.join(root,filename),'wb')    # creates the file where the uploaded file should be stored
             fout.write(x.file.file.read())                  # writes the uploaded file to the newly created file.
             fout.close()                                    # closes the file, upload complete.
             
@@ -107,5 +108,10 @@ app = web.application(urls,globals())
 application = app.wsgifunc()
 
 if __name__ == "__main__":
-    app.run()
+    # app.run()
     
+    import socket
+    ip = socket.gethostbyname(socket.gethostname())
+    print ip
+
+    autoreload.main(app.run)

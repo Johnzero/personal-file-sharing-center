@@ -1,2 +1,2 @@
 # the directory you want to share
-root = "/home/upload/"
+root = "C:\Users\Administrator\Desktop\share"
