@@ -47,29 +47,61 @@ and Modified by Ace(i.orzace.com)
 
 		// fetch FileList object
 		var files = e.target.files || e.dataTransfer.files;
-        
         // init the ajax request
-        var xhr = new XMLHttpRequest();  
-        xhr.open('post', '/', true);  
-        xhr.upload.addEventListener("load", function(e){window.location.reload()},false);
-        xhr.upload.addEventListener("progress", uploadProgress, false);
+        // var xhr = new XMLHttpRequest();  
+        // xhr.open('post', '/', true);  
+        // // xhr.upload.addEventListener("load", function(e){window.location.reload()},false);
+        // xhr.upload.addEventListener("progress", uploadProgress, false);
 
-        var formData = new FormData();
+        // var formData = new FormData();
 
 		// process all File objects
+		var counter = 0;
+		var interval = setInterval(function() {
+		    if(counter == files.length) {
+		        clearInterval(interval);
+		        console.log("All Files uploaded!");
+		        setTimeout("window.location.reload();",1000);
+		        // window.location.reload();
+		    }
+		}, 400)
+
 		for (var i = 0, f; f = files[i]; i++) {
             var entry = e.dataTransfer.items[i].webkitGetAsEntry();
-            if(entry.isFile)
+            if(entry.isFile){
+            	var formData = new FormData();
                 formData.append('file', f);
+                var xhr = new XMLHttpRequest(); 
+                xhr.onreadystatechange=function()
+				{
+
+					// console.log(xhr.readyState);
+				} 
+		        xhr.open('post', '/', true);  
+		        // xhr.upload.addEventListener("load", function(e){window.location.reload()},false);
+		        // xhr.upload.addEventListener("loadstart", function(e){console.log(counter);},false);
+		        xhr.upload.addEventListener("abort", function(e){alert(f.name + "文件传输被用户取消");},false);
+		        xhr.upload.addEventListener("loadEnd", function(e){console.log(f.name + "文件传输结束");},false);
+		        xhr.upload.addEventListener("load", function(e){counter++},false);
+		        xhr.upload.addEventListener("progress", uploadProgress, false);
+		 		//* abort事件：传输被用户取消。
+				//* error事件：传输中出现错误。
+				//* loadstart事件：传输开始。
+				//* loadEnd事件：传输结束，但是不知道成功还是失败。
+                xhr.send(formData);
+            }
+            else if (entry.isDirectory){
+            	console.log(entry);
+
+            }
             else
             {
-                alert("不支持上传文件夹");
+                alert("不能鉴别的文件类型");
                 return;
             }
             
 		}
-        
-        xhr.send(formData);
+        // xhr.send(formData);
 
 	}
 

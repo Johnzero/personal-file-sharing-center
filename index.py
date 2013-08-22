@@ -75,7 +75,7 @@ class Index:
             web.header('Content-Type','application/octet-stream')
             
             web.header('Content-disposition', 'attachment; filename=%s' % path)
-            file = open(os.path.join(root,path))
+            file = open(os.path.join(root,path),'rb')
             size = os.path.getsize(os.path.join(root,path))
             web.header('Content-Length','%s' % size)
             return file.read()
@@ -92,14 +92,17 @@ class Index:
         # save a file to disk
         x = web.input(file={})
         y = web.rawinput('both')
-        if 'file' in x:
+        if not x.file == {}:
             filepath= x.file.filename.replace('\\','/')     # replaces the windows-style slashes with linux ones.
             filename = filepath.split('/')[-1]              # splits the and chooses the last part (the filename with extension)
             filename = unicode(filename, "utf8")
             fout = open(os.path.join(root,filename),'wb')    # creates the file where the uploaded file should be stored
             fout.write(x.file.file.read())                  # writes the uploaded file to the newly created file.
-            fout.close()                                    # closes the file, upload complete.
-            
+            fout.close()
+        elif x.has_key("directory"):
+            print y.directory.filename,'----------------'                                    # closes the file, upload complete.
+        else :print ''
+        
         return "<script>parent.location.reload()</script>" 
 
 # start the application
